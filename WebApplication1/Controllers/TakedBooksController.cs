@@ -8,6 +8,16 @@ namespace WebApplication1.Controllers
 {
     public class TakedBooksController : Controller
     {
+        public ActionResult UsersTakedBook()
+        {
+            List<TakedBooks> TakedBooks;
+            using (Model1 db = new Model1())
+            {
+                TakedBooks = db.TakedBooks.Take(5).ToList();
+
+            }
+            return PartialView(TakedBooks);
+        }
         public ActionResult Index()
         {
             List<TakedBooks> TakedBooks;

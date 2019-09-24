@@ -228,6 +228,7 @@
     <Content Include="Views\Users\EditOrCreate.cshtml" />
     <Content Include="Views\TakedBooks\index.cshtml" />
     <Content Include="Views\TakedBooks\EditOrCreate.cshtml" />
+    <Content Include="Views\TakedBooks\UsersTakedBook.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
