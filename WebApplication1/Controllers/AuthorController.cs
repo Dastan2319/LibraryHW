@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class AuthorController : Controller
     {
+        UnitOfWork unitOfWork;
+
+        public AuthorController()
+        {
+            unitOfWork = new UnitOfWork();
+        }
+
         public ActionResult Index()
         {
-            List<Authors> authors;
-            using (Model1 db = new Model1())
-            {
-                authors = db.Authors.ToList();
-
-            }
+            IEnumerable<Authors> authors=unitOfWork.Authors.GetAll();
             return View(authors);
         }
       
@@ -24,10 +27,8 @@ namespace WebApplication1.Controllers
             Authors author = new Authors();
             if (id != null)
             {
-                using (Model1 db = new Model1())
-                {
-                    author = db.Authors.Where(a => a.Id == id).FirstOrDefault();
-                }
+                  author = unitOfWork.Authors.Get(id);
+                
             }
             return View(author);
 
@@ -36,31 +37,25 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public ActionResult EditOrCreate(Authors author)
         {
-            using (Model1 db = new Model1())
-            {
+            
                 if (author.Id != 0)
                 {
-                    var AuthorTemp = db.Authors.Where(a => a.Id == author.Id).FirstOrDefault();
-                    AuthorTemp.FirstName = author.FirstName;
-                    AuthorTemp.LastName = author.LastName;
+                    unitOfWork.Authors.Update(author);
+                    unitOfWork.Save();
                 }
                 else
                 {
-                    db.Authors.Add(author);
+                    unitOfWork.Authors.Create(author);
+                    unitOfWork.Save();
                 }
-                db.SaveChanges();
-            }
+            
             return RedirectToActionPermanent("Index", "Author");
         }
 
         public ActionResult Delete(int id)
         {
-            using (Model1 db = new Model1())
-            {
-                var author = db.Authors.Where(a => a.Id == id).FirstOrDefault();
-                db.Authors.Remove(author);
-                db.SaveChanges();
-            }
+            unitOfWork.Authors.Delete(id);
+            unitOfWork.Save();           
             return RedirectToAction("Index", "Author");
         }
     }

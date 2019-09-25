@@ -180,6 +180,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entity\TakedBooks.cs" />
     <Compile Include="Entity\Users.cs" />
+    <Compile Include="Repositories\AuthorsRepository.cs" />
+    <Compile Include="Repositories\BookRepository.cs" />
+    <Compile Include="Repositories\IRepository.cs" />
+    <Compile Include="Repositories\TakedBooksRepository.cs" />
+    <Compile Include="Repositories\UnitOfWork.cs" />
+    <Compile Include="Repositories\UsersRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -229,6 +235,7 @@
     <Content Include="Views\TakedBooks\index.cshtml" />
     <Content Include="Views\TakedBooks\EditOrCreate.cshtml" />
     <Content Include="Views\TakedBooks\UsersTakedBook.cshtml" />
+    <Content Include="Views\Author\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

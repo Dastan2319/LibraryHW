@@ -3,29 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class TakedBooksController : Controller
     {
-        public ActionResult UsersTakedBook()
-        {
-            List<TakedBooks> TakedBooks;
-            using (Model1 db = new Model1())
-            {
-                TakedBooks = db.TakedBooks.Take(5).ToList();
+        UnitOfWork unitOfWork;
 
-            }
-            return PartialView(TakedBooks);
+        public TakedBooksController()
+        {
+            unitOfWork = new UnitOfWork();
         }
+
         public ActionResult Index()
         {
-            List<TakedBooks> TakedBooks;
-            using (Model1 db = new Model1())
-            {
-                TakedBooks = db.TakedBooks.ToList();
-
-            }
+            IEnumerable<TakedBooks> TakedBooks = unitOfWork.TakedBooks.GetAll();
             return View(TakedBooks);
         }
 
@@ -34,10 +27,8 @@ namespace WebApplication1.Controllers
             TakedBooks TakedBooks = new TakedBooks();
             if (id != null)
             {
-                using (Model1 db = new Model1())
-                {
-                    TakedBooks = db.TakedBooks.Where(a => a.id == id).FirstOrDefault();
-                }
+                TakedBooks = unitOfWork.TakedBooks.Get(id);
+
             }
             return View(TakedBooks);
 
@@ -46,35 +37,25 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public ActionResult EditOrCreate(TakedBooks TakedBooks)
         {
-            using (Model1 db = new Model1())
-            {
-             
 
-                if (TakedBooks.id != 0)
-                {
-                    var TakedBooksTemp = db.TakedBooks.Where(a => a.id == TakedBooks.id).FirstOrDefault();
-                    TakedBooksTemp.BookId = TakedBooks.BookId;
-                    TakedBooksTemp.UserId = TakedBooks.UserId;
-                }
-                else
-                {
-                    TakedBooks.Books = db.Books.Where(x => x.Id == TakedBooks.Books_Id).FirstOrDefault();
-                    TakedBooks.Users = db.Users.Where(x => x.Id == TakedBooks.UserId).FirstOrDefault();
-                    db.TakedBooks.Add(TakedBooks);
-                }
-                db.SaveChanges();
+            if (TakedBooks.id != 0)
+            {
+                unitOfWork.TakedBooks.Update(TakedBooks);
+                unitOfWork.Save();
             }
+            else
+            {
+                unitOfWork.TakedBooks.Create(TakedBooks);
+                unitOfWork.Save();
+            }
+
             return RedirectToActionPermanent("Index", "TakedBooks");
         }
 
         public ActionResult Delete(int id)
         {
-            using (Model1 db = new Model1())
-            {
-                var TakedBooks = db.TakedBooks.Where(a => a.id == id).FirstOrDefault();
-                db.TakedBooks.Remove(TakedBooks);
-                db.SaveChanges();
-            }
+            unitOfWork.TakedBooks.Delete(id);
+            unitOfWork.Save();
             return RedirectToAction("Index", "TakedBooks");
         }
     }

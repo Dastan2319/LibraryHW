@@ -3,68 +3,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class BooksController : Controller
     {
+        UnitOfWork unitOfWork;
+
+        public BooksController()
+        {
+            unitOfWork = new UnitOfWork();
+        }
         public ActionResult Index()
         {
-            List<Books> Books;
-            using (Model1 db = new Model1())
-            {
-                Books = db.Books.ToList();
-
-            }
-            return View(Books);
+            IEnumerable<Books> books = unitOfWork.Books.GetAll();
+            return View(books);
         }
 
         public ActionResult EditOrCreate(int? id)
         {
-            Books Books = new Books();
+            Books books = new Books();
             if (id != null)
             {
-                using (Model1 db = new Model1())
-                {
-                    Books = db.Books.Where(a => a.Id == id).FirstOrDefault();
-                }
+                books = unitOfWork.Books.Get(id);
+
             }
-            return View(Books);
+            return View(books);
 
         }
 
         [HttpPost]
         public ActionResult EditOrCreate(Books Books)
         {
-            using (Model1 db = new Model1())
-            {
-                if (Books.Id != 0)
-                {
-                    var BooksTemp = db.Books.Where(a => a.Id == Books.Id).FirstOrDefault();
-                    BooksTemp.Title = Books.Title;
-                    BooksTemp.Price = Books.Price;
-                    BooksTemp.Pages = Books.Pages;
-                    BooksTemp.AuthorId = Books.AuthorId;
 
-                }
-                else
-                {
-                    Books.Authors = db.Authors.Where(x => x.Id == Books.AuthorId).FirstOrDefault();
-                    db.Books.Add(Books);
-                }
-                db.SaveChanges();
+            if (Books.Id != 0)
+            {
+                unitOfWork.Books.Update(Books);
+                unitOfWork.Save();
+            }
+            else
+            {
+                unitOfWork.Books.Create(Books);
+                unitOfWork.Save();
             }
             return RedirectToActionPermanent("Index", "Books");
         }
 
         public ActionResult Delete(int id)
         {
-            using (Model1 db = new Model1())
-            {
-                var Books = db.Books.Where(a => a.Id == id).FirstOrDefault();
-                db.Books.Remove(Books);
-                db.SaveChanges();
-            }
+            unitOfWork.Books.Delete(id);
+            unitOfWork.Save();
             return RedirectToAction("Index", "Books");
         }
     }

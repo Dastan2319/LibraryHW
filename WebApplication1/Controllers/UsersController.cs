@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class UsersController : Controller
     {
+        UnitOfWork unitOfWork;
+
+        public UsersController()
+        {
+            unitOfWork = new UnitOfWork();
+        }
+
         public ActionResult Index()
         {
-            List<Users> Users;
-            using (Model1 db = new Model1())
-            {
-                Users = db.Users.ToList();
-
-            }
+            IEnumerable<Users> Users = unitOfWork.Users.GetAll();
             return View(Users);
         }
 
@@ -24,10 +27,8 @@ namespace WebApplication1.Controllers
             Users Users = new Users();
             if (id != null)
             {
-                using (Model1 db = new Model1())
-                {
-                    Users = db.Users.Where(a => a.Id == id).FirstOrDefault();
-                }
+                Users = unitOfWork.Users.Get(id);
+
             }
             return View(Users);
 
@@ -36,30 +37,25 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public ActionResult EditOrCreate(Users Users)
         {
-            using (Model1 db = new Model1())
+
+            if (Users.Id != 0)
             {
-                if (Users.Id != 0)
-                {
-                    var UsersTemp = db.Users.Where(a => a.Id == Users.Id).FirstOrDefault();
-                    UsersTemp.FIO = Users.FIO;
-                }
-                else
-                {
-                    db.Users.Add(Users);
-                }
-                db.SaveChanges();
+                unitOfWork.Users.Update(Users);
+                unitOfWork.Save();
             }
+            else
+            {
+                unitOfWork.Users.Create(Users);
+                unitOfWork.Save();
+            }
+
             return RedirectToActionPermanent("Index", "Users");
         }
 
         public ActionResult Delete(int id)
         {
-            using (Model1 db = new Model1())
-            {
-                var Users = db.Users.Where(a => a.Id == id).FirstOrDefault();
-                db.Users.Remove(Users);
-                db.SaveChanges();
-            }
+            unitOfWork.Users.Delete(id);
+            unitOfWork.Save();
             return RedirectToAction("Index", "Users");
         }
     }
