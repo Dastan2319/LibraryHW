@@ -1,5 +1,5 @@
 ﻿
-@model List<WebApplication1.Books>
+@model IEnumerable<WebApplication1.Models.BookViewModel>
 
 @{
     ViewBag.Title = "Index";
@@ -30,6 +30,9 @@
 @foreach (var item in Model) {
     <tr>
         <td>
+            <img src="@item.Images"/>
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.AuthorId)
         </td>
         <td>
@@ -42,8 +45,6 @@
             @Html.DisplayFor(modelItem => item.Price)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
         </td>
     </tr>
 }

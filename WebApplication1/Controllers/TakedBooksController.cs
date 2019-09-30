@@ -1,52 +1,62 @@
-﻿using System;
+﻿using AutoMapper;
+using BLL.DTO;
+using BLL.Interfaces;
+using DLL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Models;
 using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class TakedBooksController : Controller
     {
-        UnitOfWork unitOfWork;
+        ITakedBooksService takedBooksService;
 
-        public TakedBooksController()
+        public TakedBooksController(ITakedBooksService serv)
         {
-            unitOfWork = new UnitOfWork();
+            takedBooksService = serv;
         }
 
         public ActionResult Index()
         {
-            IEnumerable<TakedBooks> TakedBooks = unitOfWork.TakedBooks.GetAll();
-            return View(TakedBooks);
+            IEnumerable<TakedBooksDTO> takedBookDtos = takedBooksService.GetTakedBooks();
+            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<TakedBooksDTO, TakedBooksViewModel>()).CreateMapper();
+            var takedBooks = mapper.Map<IEnumerable<TakedBooksDTO>, List<TakedBooksViewModel>>(takedBookDtos);
+            return View(takedBooks);
         }
 
         public ActionResult EditOrCreate(int? id)
         {
-            TakedBooks TakedBooks = new TakedBooks();
+            TakedBooksDTO takedBooks = new TakedBooksDTO();
+
             if (id != null)
             {
-                TakedBooks = unitOfWork.TakedBooks.Get(id);
-
+                takedBooks = takedBooksService.GetTakedBooks(id);
             }
-            return View(TakedBooks);
+            return View(takedBooks);
 
         }
 
         [HttpPost]
-        public ActionResult EditOrCreate(TakedBooks TakedBooks)
+        public ActionResult EditOrCreate(TakedBooks takedBooks)
         {
 
-            if (TakedBooks.id != 0)
+            if (takedBooks.id != 0)
             {
-                unitOfWork.TakedBooks.Update(TakedBooks);
-                unitOfWork.Save();
+                var tempTakedBooks = takedBooksService.GetTakedBooks(takedBooks.id);
+                tempTakedBooks.BookId = takedBooks.BookId;
+                tempTakedBooks.UserId = takedBooks.UserId;
+                takedBooksService.SaveUpdate(takedBooks);
+
             }
             else
             {
-                unitOfWork.TakedBooks.Create(TakedBooks);
-                unitOfWork.Save();
+                var takedBookDto = new TakedBooksDTO { BookId= takedBooks .BookId,UserId= takedBooks.UserId};
+                takedBooksService.MakeTakedBooks(takedBookDto);
             }
 
             return RedirectToActionPermanent("Index", "TakedBooks");
@@ -54,8 +64,6 @@ namespace WebApplication1.Controllers
 
         public ActionResult Delete(int id)
         {
-            unitOfWork.TakedBooks.Delete(id);
-            unitOfWork.Save();
             return RedirectToAction("Index", "TakedBooks");
         }
     }

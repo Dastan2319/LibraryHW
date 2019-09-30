@@ -1,36 +1,44 @@
-﻿using System;
+﻿using AutoMapper;
+using BLL.DTO;
+using BLL.Interfaces;
+using BLL.Service;
+using DLL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Models;
 using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class UsersController : Controller
     {
-        UnitOfWork unitOfWork;
+        IUsersService usersService;
 
-        public UsersController()
+        public UsersController(IUsersService serv)
         {
-            unitOfWork = new UnitOfWork();
+            usersService = serv;
         }
 
         public ActionResult Index()
         {
-            IEnumerable<Users> Users = unitOfWork.Users.GetAll();
-            return View(Users);
+            IEnumerable<UsersDTO> usersDtos = usersService.GetUsers();
+            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<UsersDTO, UsersViewModel>()).CreateMapper();
+            var user = mapper.Map<IEnumerable<UsersDTO>, List<UsersViewModel>>(usersDtos);
+            return View(user);
         }
 
         public ActionResult EditOrCreate(int? id)
         {
-            Users Users = new Users();
+            UsersDTO user = new UsersDTO();
+
             if (id != null)
             {
-                Users = unitOfWork.Users.Get(id);
-
+                user = usersService.GetUsers(id);
             }
-            return View(Users);
+            return View(user);
 
         }
 
@@ -40,13 +48,12 @@ namespace WebApplication1.Controllers
 
             if (Users.Id != 0)
             {
-                unitOfWork.Users.Update(Users);
-                unitOfWork.Save();
+                usersService.SaveUpdate(Users);
             }
             else
             {
-                unitOfWork.Users.Create(Users);
-                unitOfWork.Save();
+                var usersDto = new UsersDTO { FIO=Users.FIO };
+                usersService.MakeUsers(usersDto);
             }
 
             return RedirectToActionPermanent("Index", "Users");
@@ -54,8 +61,6 @@ namespace WebApplication1.Controllers
 
         public ActionResult Delete(int id)
         {
-            unitOfWork.Users.Delete(id);
-            unitOfWork.Save();
             return RedirectToAction("Index", "Users");
         }
     }

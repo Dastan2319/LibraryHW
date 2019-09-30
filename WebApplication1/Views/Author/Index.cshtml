@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Authors>
+﻿@model IEnumerable<WebApplication1.Models.AuthorViewModel>
 
 @{
     ViewBag.Title = "Index";
@@ -29,8 +29,6 @@
             @Html.DisplayFor(modelItem => item.LastName)
         </td>
         <td>
-            @Html.ActionLink("Edit", "EditOrCreate", "Author", new { id=@item.Id },null) |
-            @Html.ActionLink("Delete", "Delete", "Author", new { id=@item.Id }, null)
         </td>
     </tr>
 }
