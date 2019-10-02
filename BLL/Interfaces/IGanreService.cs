@@ -12,7 +12,7 @@ namespace BLL.Interfaces
     {
         void MakeBook(GanreDTO orderDto);
         GanreDTO GetGanre(int? id);
-        IEnumerable<GanreDTO> GetBook();
+        IEnumerable<GanreDTO> GetGanre();
         void SaveUpdate(Ganre orderDto);
         void Dispose();
     }

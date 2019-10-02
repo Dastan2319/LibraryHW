@@ -24,7 +24,7 @@ namespace BLL.Service
             db.Dispose();
         }
 
-        public IEnumerable<GanreDTO> GetBook()
+        public IEnumerable<GanreDTO> GetGanre()
         {
             var mapper = new MapperConfiguration(cfg => cfg.CreateMap<Ganre, GanreDTO>()).CreateMapper();
             return mapper.Map<IEnumerable<Ganre>, List<GanreDTO>>(db.Ganre.GetAll());

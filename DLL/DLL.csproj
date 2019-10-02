@@ -57,6 +57,10 @@
     <Compile Include="Migrations\201909270424147_firstMig.Designer.cs">
       <DependentUpon>201909270424147_firstMig.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201909300507074_addGanreForBook.cs" />
+    <Compile Include="Migrations\201909300507074_addGanreForBook.Designer.cs">
+      <DependentUpon>201909300507074_addGanreForBook.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Model1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -77,6 +81,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201909270424147_firstMig.resx">
       <DependentUpon>201909270424147_firstMig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201909300507074_addGanreForBook.resx">
+      <DependentUpon>201909300507074_addGanreForBook.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

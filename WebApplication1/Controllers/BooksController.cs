@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.DTO;
 using BLL.Interfaces;
+using BLL.Service;
 using DLL;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,13 @@ namespace WebApplication1.Controllers
     public class BooksController : Controller
     {
         IBookService bookService;
-
         public BooksController(IBookService serv)
         {
             bookService = serv;
         }
 
         public ActionResult Index()
-        {
+        {            
             IEnumerable<BookDTO> bookDtos = bookService.GetBook();
             var mapper = new MapperConfiguration(cfg => cfg.CreateMap<BookDTO, BookViewModel>()).CreateMapper();
             var book = mapper.Map<IEnumerable<BookDTO>, List<BookViewModel>>(bookDtos);
