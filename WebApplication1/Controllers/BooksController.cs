@@ -1,70 +1,64 @@
-﻿using System;
+﻿using AutoMapper;
+using BLL.DTO;
+using BLL.Interfaces;
+using BLL.Service;
+using DLL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Models;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class BooksController : Controller
     {
-        public ActionResult Index()
+        IBookService bookService;
+        public BooksController(IBookService serv)
         {
-            List<Books> Books;
-            using (Model1 db = new Model1())
-            {
-                Books = db.Books.ToList();
+            bookService = serv;
+        }
 
-            }
-            return View(Books);
+        public ActionResult Index()
+        {            
+            IEnumerable<BookDTO> bookDtos = bookService.GetBook();
+            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<BookDTO, BookViewModel>()).CreateMapper();
+            var book = mapper.Map<IEnumerable<BookDTO>, List<BookViewModel>>(bookDtos);
+            return View(book);
         }
 
         public ActionResult EditOrCreate(int? id)
         {
-            Books Books = new Books();
+            BookDTO book = new BookDTO();
+
             if (id != null)
             {
-                using (Model1 db = new Model1())
-                {
-                    Books = db.Books.Where(a => a.Id == id).FirstOrDefault();
-                }
+                book = bookService.GetBook(id);             
             }
-            return View(Books);
+            return View(book);
 
         }
 
         [HttpPost]
         public ActionResult EditOrCreate(Books Books)
         {
-            using (Model1 db = new Model1())
-            {
-                if (Books.Id != 0)
-                {
-                    var BooksTemp = db.Books.Where(a => a.Id == Books.Id).FirstOrDefault();
-                    BooksTemp.Title = Books.Title;
-                    BooksTemp.Price = Books.Price;
-                    BooksTemp.Pages = Books.Pages;
-                    BooksTemp.AuthorId = Books.AuthorId;
 
-                }
-                else
-                {
-                    Books.Authors = db.Authors.Where(x => x.Id == Books.AuthorId).FirstOrDefault();
-                    db.Books.Add(Books);
-                }
-                db.SaveChanges();
+            if (Books.Id != 0)
+            {
+                bookService.SaveUpdate(Books);
+            }
+            else
+            {
+                var booksDto = new BookDTO { Title=Books.Title,Images=Books.Images,Pages=Books.Pages,Price=Books.Price };
+                bookService.MakeBook(booksDto);
             }
             return RedirectToActionPermanent("Index", "Books");
         }
 
         public ActionResult Delete(int id)
         {
-            using (Model1 db = new Model1())
-            {
-                var Books = db.Books.Where(a => a.Id == id).FirstOrDefault();
-                db.Books.Remove(Books);
-                db.SaveChanges();
-            }
             return RedirectToAction("Index", "Books");
         }
     }

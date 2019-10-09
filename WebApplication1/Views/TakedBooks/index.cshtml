@@ -1,10 +1,12 @@
-﻿@model IEnumerable<WebApplication1.TakedBooks>
+﻿@model IEnumerable<WebApplication1.Models.TakedBooksViewModel>
 
 @{
     ViewBag.Title = "index";
 }
 
 <h2>index</h2>
+
+@{Html.RenderPartial("UsersTakedBook");}
 
 <p>
     @Html.ActionLink("Create New", "EditOrCreate")

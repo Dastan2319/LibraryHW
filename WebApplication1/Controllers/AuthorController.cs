@@ -1,33 +1,41 @@
-﻿using System;
+﻿using AutoMapper;
+using BLL.DTO;
+using BLL.Interfaces;
+using BLL.Service;
+using DLL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
 {
     public class AuthorController : Controller
     {
+        IAuthorService authorService;
+
+        public AuthorController(IAuthorService serv)
+        {
+            authorService = serv;
+        }
+
         public ActionResult Index()
         {
-            List<Authors> authors;
-            using (Model1 db = new Model1())
-            {
-                authors = db.Authors.ToList();
-
-            }
-            return View(authors);
+            IEnumerable<AuthorsDTO> authorDtos = authorService.GetAuthor();
+            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<AuthorsDTO, AuthorViewModel>()).CreateMapper();
+            var author = mapper.Map<IEnumerable<AuthorsDTO>, List<AuthorViewModel>>(authorDtos);
+            return View(author);
         }
       
         public ActionResult EditOrCreate(int? id)
         {
-            Authors author = new Authors();
+            AuthorsDTO author=new AuthorsDTO();
+
             if (id != null)
             {
-                using (Model1 db = new Model1())
-                {
-                    author = db.Authors.Where(a => a.Id == id).FirstOrDefault();
-                }
+                author = authorService.GetAuthor(id);
             }
             return View(author);
 
@@ -36,31 +44,26 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public ActionResult EditOrCreate(Authors author)
         {
-            using (Model1 db = new Model1())
-            {
+            
                 if (author.Id != 0)
                 {
-                    var AuthorTemp = db.Authors.Where(a => a.Id == author.Id).FirstOrDefault();
-                    AuthorTemp.FirstName = author.FirstName;
-                    AuthorTemp.LastName = author.LastName;
+                    var tempAuthor = authorService.GetAuthor(author.Id);
+                    tempAuthor.FirstName = author.FirstName;
+                    tempAuthor.LastName = author.LastName;
+                    authorService.SaveUpdate(author);
+                    
                 }
                 else
                 {
-                    db.Authors.Add(author);
+                    var authorDto = new AuthorsDTO { LastName = author.LastName, FirstName = author.FirstName };
+                    authorService.MakeAuthor(authorDto);
                 }
-                db.SaveChanges();
-            }
+            
             return RedirectToActionPermanent("Index", "Author");
         }
 
         public ActionResult Delete(int id)
-        {
-            using (Model1 db = new Model1())
-            {
-                var author = db.Authors.Where(a => a.Id == id).FirstOrDefault();
-                db.Authors.Remove(author);
-                db.SaveChanges();
-            }
+        {        
             return RedirectToAction("Index", "Author");
         }
     }

@@ -1,70 +1,69 @@
-﻿using System;
+﻿using AutoMapper;
+using BLL.DTO;
+using BLL.Interfaces;
+using DLL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Models;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class TakedBooksController : Controller
     {
+        ITakedBooksService takedBooksService;
+
+        public TakedBooksController(ITakedBooksService serv)
+        {
+            takedBooksService = serv;
+        }
+
         public ActionResult Index()
         {
-            List<TakedBooks> TakedBooks;
-            using (Model1 db = new Model1())
-            {
-                TakedBooks = db.TakedBooks.ToList();
-
-            }
-            return View(TakedBooks);
+            IEnumerable<TakedBooksDTO> takedBookDtos = takedBooksService.GetTakedBooks();
+            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<TakedBooksDTO, TakedBooksViewModel>()).CreateMapper();
+            var takedBooks = mapper.Map<IEnumerable<TakedBooksDTO>, List<TakedBooksViewModel>>(takedBookDtos);
+            return View(takedBooks);
         }
 
         public ActionResult EditOrCreate(int? id)
         {
-            TakedBooks TakedBooks = new TakedBooks();
+            TakedBooksDTO takedBooks = new TakedBooksDTO();
+
             if (id != null)
             {
-                using (Model1 db = new Model1())
-                {
-                    TakedBooks = db.TakedBooks.Where(a => a.id == id).FirstOrDefault();
-                }
+                takedBooks = takedBooksService.GetTakedBooks(id);
             }
-            return View(TakedBooks);
+            return View(takedBooks);
 
         }
 
         [HttpPost]
-        public ActionResult EditOrCreate(TakedBooks TakedBooks)
+        public ActionResult EditOrCreate(TakedBooks takedBooks)
         {
-            using (Model1 db = new Model1())
-            {
-             
 
-                if (TakedBooks.id != 0)
-                {
-                    var TakedBooksTemp = db.TakedBooks.Where(a => a.id == TakedBooks.id).FirstOrDefault();
-                    TakedBooksTemp.BookId = TakedBooks.BookId;
-                    TakedBooksTemp.UserId = TakedBooks.UserId;
-                }
-                else
-                {
-                    TakedBooks.Books = db.Books.Where(x => x.Id == TakedBooks.Books_Id).FirstOrDefault();
-                    TakedBooks.Users = db.Users.Where(x => x.Id == TakedBooks.UserId).FirstOrDefault();
-                    db.TakedBooks.Add(TakedBooks);
-                }
-                db.SaveChanges();
+            if (takedBooks.id != 0)
+            {
+                var tempTakedBooks = takedBooksService.GetTakedBooks(takedBooks.id);
+                tempTakedBooks.BookId = takedBooks.BookId;
+                tempTakedBooks.UserId = takedBooks.UserId;
+                takedBooksService.SaveUpdate(takedBooks);
+
             }
+            else
+            {
+                var takedBookDto = new TakedBooksDTO { BookId= takedBooks .BookId,UserId= takedBooks.UserId};
+                takedBooksService.MakeTakedBooks(takedBookDto);
+            }
+
             return RedirectToActionPermanent("Index", "TakedBooks");
         }
 
         public ActionResult Delete(int id)
         {
-            using (Model1 db = new Model1())
-            {
-                var TakedBooks = db.TakedBooks.Where(a => a.id == id).FirstOrDefault();
-                db.TakedBooks.Remove(TakedBooks);
-                db.SaveChanges();
-            }
             return RedirectToAction("Index", "TakedBooks");
         }
     }

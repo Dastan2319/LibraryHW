@@ -1,4 +1,4 @@
-namespace WebApplication1
+namespace DLL
 {
     using System;
     using System.Collections.Generic;

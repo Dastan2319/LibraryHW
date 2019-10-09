@@ -1,9 +1,10 @@
-namespace WebApplication1
+namespace DLL
 {
     using System;
     using System.Data.Entity;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
+    using DLL.Entity;
 
     public partial class Model1 : DbContext
     {
@@ -11,13 +12,12 @@ namespace WebApplication1
             : base("name=Model1")
         {
         }
-
-        public virtual DbSet<C__MigrationHistory> C__MigrationHistory { get; set; }
+        
         public virtual DbSet<Authors> Authors { get; set; }
         public virtual DbSet<Books> Books { get; set; }
         public virtual DbSet<TakedBooks> TakedBooks { get; set; }
         public virtual DbSet<Users> Users { get; set; }
-
+        public virtual DbSet<Ganre> Ganre { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Authors>()

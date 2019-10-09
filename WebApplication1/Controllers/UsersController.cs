@@ -1,65 +1,66 @@
-﻿using System;
+﻿using AutoMapper;
+using BLL.DTO;
+using BLL.Interfaces;
+using BLL.Service;
+using DLL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication1.Models;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
     public class UsersController : Controller
     {
+        IUsersService usersService;
+
+        public UsersController(IUsersService serv)
+        {
+            usersService = serv;
+        }
+
         public ActionResult Index()
         {
-            List<Users> Users;
-            using (Model1 db = new Model1())
-            {
-                Users = db.Users.ToList();
-
-            }
-            return View(Users);
+            IEnumerable<UsersDTO> usersDtos = usersService.GetUsers();
+            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<UsersDTO, UsersViewModel>()).CreateMapper();
+            var user = mapper.Map<IEnumerable<UsersDTO>, List<UsersViewModel>>(usersDtos);
+            return View(user);
         }
 
         public ActionResult EditOrCreate(int? id)
         {
-            Users Users = new Users();
+            UsersDTO user = new UsersDTO();
+
             if (id != null)
             {
-                using (Model1 db = new Model1())
-                {
-                    Users = db.Users.Where(a => a.Id == id).FirstOrDefault();
-                }
+                user = usersService.GetUsers(id);
             }
-            return View(Users);
+            return View(user);
 
         }
 
         [HttpPost]
         public ActionResult EditOrCreate(Users Users)
         {
-            using (Model1 db = new Model1())
+
+            if (Users.Id != 0)
             {
-                if (Users.Id != 0)
-                {
-                    var UsersTemp = db.Users.Where(a => a.Id == Users.Id).FirstOrDefault();
-                    UsersTemp.FIO = Users.FIO;
-                }
-                else
-                {
-                    db.Users.Add(Users);
-                }
-                db.SaveChanges();
+                usersService.SaveUpdate(Users);
             }
+            else
+            {
+                var usersDto = new UsersDTO { FIO=Users.FIO };
+                usersService.MakeUsers(usersDto);
+            }
+
             return RedirectToActionPermanent("Index", "Users");
         }
 
         public ActionResult Delete(int id)
         {
-            using (Model1 db = new Model1())
-            {
-                var Users = db.Users.Where(a => a.Id == id).FirstOrDefault();
-                db.Users.Remove(Users);
-                db.SaveChanges();
-            }
             return RedirectToAction("Index", "Users");
         }
     }
