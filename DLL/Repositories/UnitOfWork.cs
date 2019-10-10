@@ -15,7 +15,7 @@ namespace WebApplication1.Repositories
         private UsersRepository usersRepository;
         private AuthorsRepository authorsRepository;
         private TakedBooksRepository takedBooksRepository;
-
+        private GanreRepository GanreRepository;
         public IRepository<Books> Books
         {
             get
@@ -56,9 +56,17 @@ namespace WebApplication1.Repositories
 
        
 
-        public IRepository<Ganre> Ganre => throw new NotImplementedException();
-        
-        
+        public IRepository<Ganre> Ganre
+        {
+            get
+            {
+                if (GanreRepository == null)
+                    GanreRepository = new GanreRepository(db);
+                return GanreRepository;
+            }
+        }
+
+
 
         public void Dispose()
         {

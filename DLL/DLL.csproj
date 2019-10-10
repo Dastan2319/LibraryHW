@@ -68,6 +68,7 @@
     <Compile Include="Entity\Users.cs" />
     <Compile Include="Repositories\AuthorsRepository.cs" />
     <Compile Include="Repositories\BookRepository.cs" />
+    <Compile Include="Repositories\GanreRepository.cs" />
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Repositories\IUnitOfWork.cs" />
     <Compile Include="Repositories\TakedBooksRepository.cs" />
